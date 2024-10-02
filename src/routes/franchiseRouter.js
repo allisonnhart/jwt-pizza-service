@@ -88,6 +88,7 @@ franchiseRouter.post(
     }
 
     const franchise = req.body;
+    //console.log(req.body);
     res.send(await DB.createFranchise(franchise));
   })
 );

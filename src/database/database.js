@@ -160,6 +160,7 @@ class DB {
   async createFranchise(franchise) {
     const connection = await this.getConnection();
     try {
+      console.log(franchise.admins);
       for (const admin of franchise.admins) {
         const adminUser = await this.query(connection, `SELECT id, name FROM user WHERE email=?`, [admin.email]);
         if (adminUser.length == 0) {
