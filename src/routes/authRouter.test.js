@@ -50,8 +50,6 @@ async function createFranchise(adminUser, adminAuthToken) {
 
   const franchise = await request(app).post('/api/franchise').set("Authorization", `Bearer ${adminAuthToken}`).send({ name: adminUser.name, admins: [{email:adminUser.email}]});
 
-  console.log(adminAuthToken);
-
   return franchise;
 }
 
@@ -66,7 +64,9 @@ test('getting menu', async () => {
   expect(menu.length).toBe(menuLength);
 
   const lastItem = menu[menu.length - 1]; 
-  expect(lastItem.description).toBe(firstTestPizza.description);
+  console.log(lastItem.description);
+  console.log(firstTestPizza.description);
+  expect(lastItem.title).toBe(firstTestPizza.title);
   expect(lastItem.image).toBe(firstTestPizza.image);
   expect(lastItem.price).toBe(firstTestPizza.price);
 

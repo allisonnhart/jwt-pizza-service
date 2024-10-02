@@ -160,7 +160,6 @@ class DB {
   async createFranchise(franchise) {
     const connection = await this.getConnection();
     try {
-      console.log(franchise.admins);
       for (const admin of franchise.admins) {
         const adminUser = await this.query(connection, `SELECT id, name FROM user WHERE email=?`, [admin.email]);
         if (adminUser.length == 0) {
@@ -323,7 +322,7 @@ class DB {
       const connection = await this._getConnection(false);
       try {
         const dbExists = await this.checkDatabaseExists(connection);
-        console.log(dbExists ? 'Database exists' : 'Database does not exist');
+        //console.log(dbExists ? 'Database exists' : 'Database does not exist');
 
         await connection.query(`CREATE DATABASE IF NOT EXISTS ${config.db.connection.database}`);
         await connection.query(`USE ${config.db.connection.database}`);
