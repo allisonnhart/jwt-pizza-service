@@ -64,8 +64,6 @@ test('getting menu', async () => {
   expect(menu.length).toBe(menuLength);
 
   const lastItem = menu[menu.length - 1]; 
-  console.log(lastItem.description);
-  console.log(firstTestPizza.description);
   expect(lastItem.title).toBe(firstTestPizza.title);
   expect(lastItem.image).toBe(firstTestPizza.image);
   expect(lastItem.price).toBe(firstTestPizza.price);
