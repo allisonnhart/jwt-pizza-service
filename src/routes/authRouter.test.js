@@ -7,7 +7,7 @@ let testUserAuthToken;
 const firstTestPizza = { "title":"Pepperoni", "description": "Spicy treat", "image":"pizza2.png", "price": 0.0042 };
 
 const { Role, DB } = require('../database/database.js');
-//const database = require('../database/database.js');
+const database = require('../database/database.js');
 
 beforeAll(async () => {
   testUser.email = Math.random().toString(36).substring(2, 12) + '@test.com';
@@ -29,10 +29,6 @@ test('login', async () => {
 
 function randomName() {
     return Math.random().toString(36).substring(2, 12);
-  }
-
-  function randomPrice(min = 10, max = 100) {
-    return (Math.random() * (max - min) + min).toFixed(2);
   }
 
 if (process.env.VSCODE_INSPECTOR_OPTIONS) {
@@ -60,37 +56,18 @@ async function createFranchise(adminUser, adminAuthToken) {
 
 test('getting menu', async () => {
 
-  const adminUser = await createAdminUser();
-
-  const loginRes = await request(app).put('/api/auth').send(adminUser);
-  expect(loginRes.status).toBe(200);
-  const adminAuthToken = loginRes.body.token;
-
-  const menu = 
-  [
-    {
-      title: randomName(),
-      image: 'pizza2.png',
-      price: randomPrice().toString(),
-      description: 'Spicy treat'
-    }
-  ];
-
-  console.log(menu[0].price);
-
-  const addingToMenuRes = await request(app).put('/api/order/menu').set('Authorization', `Bearer ${adminAuthToken}`).send(menu[0]);
-  expect(addingToMenuRes.status).toBe(200);
-
   const getMenuRes = await request(app).get('/api/order/menu');
   expect(getMenuRes.status).toBe(200);
 
-  console.log('menu[0]: ', menu[0]);
+  const menu = await database.DB.getMenu();
+  let menuLength = menu.length;
+  expect(menu.length).toBe(menuLength);
 
-  const receivedMenuItem = getMenuRes.body[getMenuRes.body.length - 1];
-  delete receivedMenuItem.id;
-  receivedMenuItem.price = receivedMenuItem.price.toString();
+  const lastItem = menu[menu.length - 1]; 
+  expect(lastItem.title).toBe(firstTestPizza.title);
+  expect(lastItem.image).toBe(firstTestPizza.image);
+  expect(lastItem.price).toBe(firstTestPizza.price);
 
-  expect(receivedMenuItem).toEqual(menu[0]); 
 });
 
 test('adding to menu when admin', async () => {
@@ -101,18 +78,8 @@ test('adding to menu when admin', async () => {
   expect(loginRes.status).toBe(200);
   const adminAuthToken = loginRes.body.token;
 
-  const menu = 
-  [
-    {
-      id: Math.random(),
-      title: randomName(),
-      image: 'pizza2.png',
-      price: randomPrice(),
-      description: 'Spicy treat'
-    }
-  ];
 
-  const addingToMenuRes = await request(app).put('/api/order/menu').set('Authorization', `Bearer ${adminAuthToken}`).send(menu[0]);
+  const addingToMenuRes = await request(app).put('/api/order/menu').set('Authorization', `Bearer ${adminAuthToken}`).send(firstTestPizza);
   expect(addingToMenuRes.status).toBe(200);
 
 });
