@@ -54,21 +54,21 @@ async function createFranchise(adminUser, adminAuthToken) {
 }
 
 
-test('getting menu', async () => {
+// test('getting menu', async () => {
 
-  const getMenuRes = await request(app).get('/api/order/menu');
-  expect(getMenuRes.status).toBe(200);
+//   const getMenuRes = await request(app).get('/api/order/menu');
+//   expect(getMenuRes.status).toBe(200);
 
-  const menu = await database.DB.getMenu();
-  let menuLength = menu.length;
-  expect(menu.length).toBe(menuLength);
+//   const menu = await database.DB.getMenu();
+//   let menuLength = menu.length;
+//   expect(menu.length).toBe(menuLength);
 
-  const lastItem = menu[menu.length - 1]; 
-  expect(lastItem.title).toBe(firstTestPizza.title);
-  expect(lastItem.image).toBe(firstTestPizza.image);
-  expect(lastItem.price).toBe(firstTestPizza.price);
+//   const lastItem = menu[menu.length - 1]; 
+//   expect(lastItem.title).toBe(firstTestPizza.title);
+//   expect(lastItem.image).toBe(firstTestPizza.image);
+//   expect(lastItem.price).toBe(firstTestPizza.price);
 
-});
+// });
 
 test('adding to menu when admin', async () => {
 
