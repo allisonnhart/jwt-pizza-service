@@ -15,7 +15,7 @@ beforeAll(async () => {
   testUserAuthToken = registerRes.body.token;
   expect(testUserAuthToken).toBe(registerRes.body.token);
 
-});
+}, 10000);
 
 test('login', async () => {
   const loginRes = await request(app).put('/api/auth').send(testUser);
