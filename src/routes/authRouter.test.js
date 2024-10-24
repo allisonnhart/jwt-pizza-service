@@ -7,7 +7,7 @@ let testUserAuthToken;
 const firstTestPizza = { "title":"Pepperoni", "description": "Spicy treat", "image":"pizza2.png", "price": 0.0042 };
 
 const { Role, DB } = require('../database/database.js');
-const database = require('../database/database.js');
+//const database = require('../database/database.js');
 
 beforeAll(async () => {
   testUser.email = Math.random().toString(36).substring(2, 12) + '@test.com';
