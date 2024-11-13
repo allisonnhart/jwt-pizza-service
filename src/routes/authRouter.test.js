@@ -15,6 +15,7 @@ beforeAll(async () => {
   expect(testUserAuthToken).toBe(registerRes.body.token);
 
 }, 10000);
+//changing to re run tests
 
 test('login', async () => {
   const loginRes = await request(app).put('/api/auth').send(testUser);
