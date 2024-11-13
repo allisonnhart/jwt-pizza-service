@@ -210,7 +210,8 @@ class Metrics {
   }
 
   sendMetricsPeriodically(period) {
-    const timer = setInterval(() => {
+    //const timer = setInterval(() => {
+    setInterval(() => {
         //call cpu and memory functions somewhere in here
       try {
         // const buf = new MetricBuilder();
