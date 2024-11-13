@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config.js');
 const { asyncHandler } = require('../endpointHelper.js');
 const { DB, Role } = require('../database/database.js');
-
+const metrics = require('../metrics.js');
 const authRouter = express.Router();
 
 authRouter.endpoints = [
@@ -67,13 +67,32 @@ authRouter.authenticateToken = (req, res, next) => {
 authRouter.post(
   '/',
   asyncHandler(async (req, res) => {
+    metrics.incrementRequests();
+    metrics.incrementPostRequests();
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
+
+      metrics.incrementFailureAuth();
+
       return res.status(400).json({ message: 'name, email, and password are required' });
     }
-    const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
-    const auth = await setAuth(user);
-    res.json({ user: user, token: auth });
+    try {
+      const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
+      const auth = await setAuth(user);
+      res.json({ user: user, token: auth });
+
+      metrics.userIsLoggedIn();
+      metrics.incrementSuccessAuth();
+    }
+    catch(error) {
+      console.error("Error registering user: ", error);
+      metrics.incrementFailureAuth();
+    }
+    // const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
+    // const auth = await setAuth(user);
+    // res.json({ user: user, token: auth });
+
+    // metrics.userIsLoggedIn();
   })
 );
 
@@ -81,11 +100,29 @@ authRouter.post(
 authRouter.put(
   '/',
   asyncHandler(async (req, res) => {
+    metrics.incrementRequests();
+    metrics.incrementPutRequests();
     const { email, password } = req.body;
-    const user = await DB.getUser(email, password);
-    const auth = await setAuth(user);
-    res.json({ user: user, token: auth });
+    try {
+      const user = await DB.getUser(email, password);
+      const auth = await setAuth(user);
+      res.json({ user: user, token: auth });
+  
+      metrics.userIsLoggedIn();
+      metrics.incrementSuccessAuth();
+    }
+    // const user = await DB.getUser(email, password);
+    // const auth = await setAuth(user);
+    // res.json({ user: user, token: auth });
+
+    // metrics.userIsLoggedIn();
+    // metrics.incrementSuccessAuth();
+    catch(error) {
+      console.error("Error logging in user: ", error);
+      metrics.incrementFailureAuth();
+    }
   })
+  //login successfully metric 
 );
 
 // logout
@@ -93,9 +130,25 @@ authRouter.delete(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
-    clearAuth(req);
-    res.json({ message: 'logout successful' });
+    metrics.incrementRequests();
+    metrics.incrementDeleteRequests();
+    try {
+      clearAuth(req);
+      res.json({ message: 'logout successful' });
+  
+      metrics.userIsLoggedOut();
+    }
+    // clearAuth(req);
+    // res.json({ message: 'logout successful' });
+
+    // metrics.userIsLoggedOut();
+    catch(error) {
+      console.error("Error logging out user: ", error);
+      metrics.incrementFailureAuth();
+    }
   })
+  //function to notify that a user's logged out
+  //logic to determine who logged in, how many, etc.
 );
 
 // updateUser
@@ -103,6 +156,8 @@ authRouter.put(
   '/:userId',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
+    metrics.incrementRequests();
+    metrics.incrementPutRequests();
     const { email, password } = req.body;
     const userId = Number(req.params.userId);
     const user = req.user;

@@ -3,7 +3,8 @@ const config = require('../config.js');
 const { Role, DB } = require('../database/database.js');
 const { authRouter } = require('./authRouter.js');
 const { asyncHandler, StatusCodeError } = require('../endpointHelper.js');
-
+const metrics = require('../metrics.js');
+const { start } = require('repl');
 const orderRouter = express.Router();
 
 orderRouter.endpoints = [
@@ -44,6 +45,8 @@ orderRouter.endpoints = [
 orderRouter.get(
   '/menu',
   asyncHandler(async (req, res) => {
+    metrics.incrementRequests();
+    metrics.incrementGetRequests();
     res.send(await DB.getMenu());
   })
 );
@@ -53,6 +56,8 @@ orderRouter.put(
   '/menu',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
+    metrics.incrementRequests();
+    metrics.incrementPutRequests();
     if (!req.user.isRole(Role.Admin)) {
       throw new StatusCodeError('unable to add menu item', 403);
     }
@@ -68,6 +73,8 @@ orderRouter.get(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
+    metrics.incrementRequests();
+    metrics.incrementGetRequests();
     res.json(await DB.getOrders(req.user, req.query.page));
   })
 );
@@ -77,20 +84,42 @@ orderRouter.post(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
+    metrics.incrementRequests();
+    metrics.incrementPostRequests();
     const orderReq = req.body;
     const order = await DB.addDinerOrder(req.user, orderReq);
+    //start a timer here
+    const startTime = Date.now();
     const r = await fetch(`${config.factory.url}/api/order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${config.factory.apiKey}` },
       body: JSON.stringify({ diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order }),
     });
     const j = await r.json();
+    const elapsedTime = Date.now() - startTime;
+    metrics.incrementRequestProcessingTime(elapsedTime);
+    // console.log('Request processed in ${elapsedTime}ms');
+    //stop timer 
+    //that's my latency i wanna keep track of
+    //send regardless of whether r is ok or not
     if (r.ok) {
       res.send({ order, jwt: j.jwt, reportUrl: j.reportUrl });
+
+      metrics.incrementCreationSuccesses();
+      metrics.incrementPizzasSold();
+      const currentRevenue = order.price;
+      metrics.currentPizzaRevenue(currentRevenue);
+      metrics.incrementTotalRevenue(currentRevenue);
+
     } else {
       res.status(500).send({ message: 'Failed to fulfill order at factory', reportUrl: j.reportUrl });
+      metrics.incrementCreationFailures();
     }
   })
+  //messing w this to add in to determine how many pizzas sold, total rev, creation latency, and if there are any creation failures
 );
 
 module.exports = orderRouter;
+
+//start timer for when order gets sent off and stop when results come back
+//same kinda thing for request
