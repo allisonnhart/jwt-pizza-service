@@ -151,14 +151,14 @@ class Metrics {
 
   sendMetricToGrafana(metricPrefix, httpMethod, metricName, metricValue) {
 
-    const metric = `${metricPrefix},source=${config.source},method=${httpMethod} ${metricName}=${metricValue}`;
+    const metric = `${metricPrefix},source=${config.metrics.source},method=${httpMethod} ${metricName}=${metricValue}`;
 
     // const metric = `${metricPrefix},source=${config.source},method=${httpMethod} ${metricName}=${metricValue}`;
 
-    fetch(`${config.url}`, {
+    fetch(`${config.metrics.url}`, {
       method: 'post',
       body: metric,
-      headers: { Authorization: `Bearer ${config.userId}:${config.apiKey}` },
+      headers: { Authorization: `Bearer ${config.metrics.userId}:${config.metrics.apiKey}` },
     })
       .then((response) => {
         if (!response.ok) {
@@ -198,15 +198,15 @@ class Metrics {
     this.sendMetricToGrafana('request', 'post', 'total', this.postrequest);
     this.sendMetricToGrafana('request', 'delete', 'total', this.deleterequest);
     this.sendMetricToGrafana('request', 'get', 'total', this.getrequest);
-    this.sendMetricToGrafana('authenticate', 'users logged in', 'total', this.usersLoggedIn);
-    this.sendMetricToGrafana('authenticate', 'successful authentication', 'total', this.successfulAuthentication);
-    this.sendMetricToGrafana('authenticate', 'failed authentication', 'total', this.failedAuthentication);
-    this.sendMetricToGrafana('pizza', 'pizzas sold', 'total', this.pizzasSold);
-    this.sendMetricToGrafana('pizza', 'pizza success creation total', 'total', this.creationSuccesses);
-    this.sendMetricToGrafana('pizza', 'pizza failure creation total', 'total', this.creationFailures);
-    this.sendMetricToGrafana('pizza revenue total', 'current revenue', 'total', this.currentRevenue);
-    this.sendMetricToGrafana('pizza revenue total', 'total revenue', 'total', this.totalRevenue);
-    this.sendMetricToGrafana('order', 'pizza creation latency', 'total', this.timePassed);
+    this.sendMetricToGrafana('authenticate', 'users_logged_in', 'total', this.usersLoggedIn);
+    this.sendMetricToGrafana('authenticate', 'successful_authentication', 'total', this.successfulAuthentication);
+    this.sendMetricToGrafana('authenticate', 'failed_authentication', 'total', this.failedAuthentication);
+    this.sendMetricToGrafana('pizza', 'pizzas_sold', 'total', this.pizzasSold);
+    this.sendMetricToGrafana('pizza', 'pizza_success_creation_total', 'total', this.creationSuccesses);
+    this.sendMetricToGrafana('pizza', 'pizza_failure_creation_total', 'total', this.creationFailures);
+    this.sendMetricToGrafana('pizza_revenue_total', 'current_revenue', 'total', this.currentRevenue);
+    this.sendMetricToGrafana('pizza_revenue_total', 'total_revenue', 'total', this.totalRevenue);
+    this.sendMetricToGrafana('order', 'pizza_creation_latency', 'total', this.timePassed);
   }
 
   sendMetricsPeriodically(period) {
