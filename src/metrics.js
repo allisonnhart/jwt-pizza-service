@@ -231,7 +231,7 @@ class Metrics {
       } catch (error) {
         console.log('Error sending metrics', error);
       }
-    }, period);
+    }, period).unref();
   }
 }
 
