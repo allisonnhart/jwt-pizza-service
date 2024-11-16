@@ -100,6 +100,7 @@ authRouter.post(
 authRouter.put(
   '/',
   asyncHandler(async (req, res) => {
+    console.log("hitting login");
     metrics.incrementRequests();
     metrics.incrementPutRequests();
     const { email, password } = req.body;
@@ -107,7 +108,8 @@ authRouter.put(
       const user = await DB.getUser(email, password);
       const auth = await setAuth(user);
       res.json({ user: user, token: auth });
-  
+      console.log(user);
+      console.log(auth);
       metrics.userIsLoggedIn();
       metrics.incrementSuccessAuth();
     }

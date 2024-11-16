@@ -164,7 +164,7 @@ class Metrics {
         if (!response.ok) {
           console.error('Failed to push metrics data to Grafana');
         } else {
-          console.log(`Pushed ${metric}`);
+          //console.log(`Pushed ${metric}`);
         }
       })
       .catch((error) => {
@@ -198,9 +198,11 @@ class Metrics {
     this.sendMetricToGrafana('request', 'post', 'total', this.postrequest);
     this.sendMetricToGrafana('request', 'delete', 'total', this.deleterequest);
     this.sendMetricToGrafana('request', 'get', 'total', this.getrequest);
+    this.sendMetricToGrafana('request', 'put', 'total', this.putrequest);
     this.sendMetricToGrafana('authenticate', 'users_logged_in', 'total', this.usersLoggedIn);
     this.sendMetricToGrafana('authenticate', 'successful_authentication', 'total', this.successfulAuthentication);
     this.sendMetricToGrafana('authenticate', 'failed_authentication', 'total', this.failedAuthentication);
+    //maybe log this out to see what the info is here
     this.sendMetricToGrafana('pizza', 'pizzas_sold', 'total', this.pizzasSold);
     this.sendMetricToGrafana('pizza', 'pizza_success_creation_total', 'total', this.creationSuccesses);
     this.sendMetricToGrafana('pizza', 'pizza_failure_creation_total', 'total', this.creationFailures);
