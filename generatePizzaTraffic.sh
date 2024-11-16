@@ -33,7 +33,7 @@ while true
 do
   curl -s -X PUT "$host/api/auth" -d '{"email":"unknown@jwt.com", "password":"bad"}' -H 'Content-Type: application/json' > /dev/null;
   echo "Logging in with invalid credentials..."
-  sleep 15
+  sleep 10
 done &
 pid2=$!
 
@@ -43,7 +43,7 @@ do
   response=$(curl -s -X PUT $host/api/auth -d '{"email":"f@jwt.com", "password":"franchisee"}' -H 'Content-Type: application/json');
   token=$(echo $response | jq -r '.token');
   echo "Login franchisee..."
-  sleep 110;
+  sleep 80;
   curl -s -X DELETE $host/api/auth -H "Authorization: Bearer $token" > /dev/null;
   echo "Logging out franchisee..."
   sleep 10;
@@ -58,7 +58,7 @@ do
   echo "Login diner..."
   curl -s -X POST $host/api/order -H 'Content-Type: application/json' -d '{"franchiseId": 1, "storeId":1, "items":[{ "menuId": 1, "description": "Veggie", "price": 0.05 }]}'  -H "Authorization: Bearer $token" > /dev/null;
   echo "Bought a pizza..."
-  sleep 10;
+  sleep 5;
   curl -s -X DELETE $host/api/auth -H "Authorization: Bearer $token" > /dev/null;
   echo "Logging out diner..."
   sleep 10;
