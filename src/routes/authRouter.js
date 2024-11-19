@@ -4,6 +4,7 @@ const config = require('../config.js');
 const { asyncHandler } = require('../endpointHelper.js');
 const { DB, Role } = require('../database/database.js');
 const metrics = require('../metrics.js');
+const { start } = require('repl');
 const authRouter = express.Router();
 
 authRouter.endpoints = [
@@ -49,6 +50,7 @@ async function setAuthUser(req, res, next) {
         req.user.isRole = (role) => !!req.user.roles.find((r) => r.role === role);
       }
     } catch {
+      metrics.incrementFailureAuth();
       req.user = null;
     }
   }
@@ -77,12 +79,24 @@ authRouter.post(
       return res.status(400).json({ message: 'name, email, and password are required' });
     }
     try {
+
+      const startTime = Date.now();
+
       const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
+      //console.log(user);
+
+      const elapsedTime = Date.now() - startTime;
+      metrics.incrementRequestProcessingTime(elapsedTime);
+
       const auth = await setAuth(user);
-      res.json({ user: user, token: auth });
 
       metrics.userIsLoggedIn();
       metrics.incrementSuccessAuth();
+
+      res.json({ user: user, token: auth });
+
+      // metrics.userIsLoggedIn();
+      // metrics.incrementSuccessAuth();
     }
     catch(error) {
       console.error("Error registering user: ", error);
@@ -100,18 +114,29 @@ authRouter.post(
 authRouter.put(
   '/',
   asyncHandler(async (req, res) => {
-    console.log("hitting login");
+    //console.log("hitting login");
     metrics.incrementRequests();
     metrics.incrementPutRequests();
     const { email, password } = req.body;
     try {
+
+      const startTime = Date.now();
+
       const user = await DB.getUser(email, password);
+
+      const elapsedTime = Date.now() - startTime;
+      metrics.incrementRequestProcessingTime(elapsedTime);
+
+      //console.log("login user, ", user);
+      //handle differently
       const auth = await setAuth(user);
-      res.json({ user: user, token: auth });
-      console.log(user);
-      console.log(auth);
+      // res.json({ user: user, token: auth });
+      //console.log(user);
+      //console.log(auth);
       metrics.userIsLoggedIn();
       metrics.incrementSuccessAuth();
+
+      res.json({ user: user, token: auth });
     }
     // const user = await DB.getUser(email, password);
     // const auth = await setAuth(user);
@@ -135,10 +160,19 @@ authRouter.delete(
     metrics.incrementRequests();
     metrics.incrementDeleteRequests();
     try {
+
+      const startTime = Date.now();
+
       clearAuth(req);
+
+      const elapsedTime = Date.now() - startTime;
+      metrics.incrementRequestProcessingTime(elapsedTime);
+
+      metrics.userIsLoggedOut();
+
       res.json({ message: 'logout successful' });
   
-      metrics.userIsLoggedOut();
+      // metrics.userIsLoggedOut();
     }
     // clearAuth(req);
     // res.json({ message: 'logout successful' });
@@ -167,7 +201,13 @@ authRouter.put(
       return res.status(403).json({ message: 'unauthorized' });
     }
 
+    const startTime = Date.now();
+
     const updatedUser = await DB.updateUser(userId, email, password);
+
+    const elapsedTime = Date.now() - startTime;
+    metrics.incrementRequestProcessingTime(elapsedTime);
+
     res.json(updatedUser);
   })
 );

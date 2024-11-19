@@ -38,6 +38,7 @@ class Metrics {
     this.totalRevenue = 0;
 
     this.timePassed = 0;
+    this.pizzaTimePassed = 0;
 
     //pizza
     //latency
@@ -55,7 +56,7 @@ class Metrics {
     //cpu
     //total
 
-    this.sendMetricsPeriodically(10000);
+    this.sendMetricsPeriodically(7000);
 
     // const timer = setInterval(() => {
     //   this.sendMetricToGrafana('request', 'all', 'total', this.totalRequests);
@@ -91,17 +92,17 @@ class Metrics {
 
   incrementGetRequests() {
     this.getrequest++;
-    console.log("hit get request function");
+    //console.log("hit get request function");
   }
 
   incrementPutRequests() {
     this.putrequest++;
-    console.log("hit put request function");
+    //console.log("hit put request function");
   }
 
   userIsLoggedIn() {
     this.usersLoggedIn++;
-    console.log("user is logged in");
+    //console.log("user is logged in");
   }
 
   userIsLoggedOut() {
@@ -111,7 +112,7 @@ class Metrics {
 
   incrementSuccessAuth() {
     this.successfulAuthentication++;
-    console.log("User has been successfully authenticated");
+    //console.log("User has been successfully authenticated");
   }
 
   incrementFailureAuth() {
@@ -146,13 +147,18 @@ class Metrics {
 
   incrementRequestProcessingTime(elapsedTime) {
     this.timePassed = elapsedTime;
-    console.log('Request processing time: ${elapsedTime} ms');
+    console.log(`Request processing time: ${elapsedTime} ms`);
+  }
+
+  incrementPizzaRequestProcessingTime(elapsedTime) {
+    this.pizzaTimePassed = elapsedTime;
+    console.log(`Request pizza creation processing time: ${elapsedTime} ms`);
   }
 
   sendMetricToGrafana(metricPrefix, httpMethod, metricName, metricValue) {
 
     const metric = `${metricPrefix},source=${config.metrics.source},method=${httpMethod} ${metricName}=${metricValue}`;
-
+    // console.log('sending metric: ', metric);
     // const metric = `${metricPrefix},source=${config.source},method=${httpMethod} ${metricName}=${metricValue}`;
 
     fetch(`${config.metrics.url}`, {
@@ -161,11 +167,13 @@ class Metrics {
       headers: { Authorization: `Bearer ${config.metrics.userId}:${config.metrics.apiKey}` },
     })
       .then((response) => {
+        // console.log('metrics response: ', response.status);
         if (!response.ok) {
           console.error('Failed to push metrics data to Grafana');
-        } else {
-          //console.log(`Pushed ${metric}`);
         }
+        // } else {
+        //   //console.log(`Pushed ${metric}`);
+        // }
       })
       .catch((error) => {
         console.error('Error pushing metrics:', error);
@@ -174,7 +182,7 @@ class Metrics {
 
   getCpuUsagePercentage() {
     const cpuUsage = os.loadavg()[0] / os.cpus().length;
-    return cpuUsage.toFixed(2) * 100;
+    return parseFloat(cpuUsage.toFixed(2)) * 100;
   }
   
   getMemoryUsagePercentage() {
@@ -208,7 +216,8 @@ class Metrics {
     this.sendMetricToGrafana('pizza', 'pizza_failure_creation_total', 'total', this.creationFailures);
     this.sendMetricToGrafana('pizza_revenue_total', 'current_revenue', 'total', this.currentRevenue);
     this.sendMetricToGrafana('pizza_revenue_total', 'total_revenue', 'total', this.totalRevenue);
-    this.sendMetricToGrafana('order', 'pizza_creation_latency', 'total', this.timePassed);
+    this.sendMetricToGrafana('order', 'pizza_creation_latency', 'total', this.pizzaTimePassed);
+    this.sendMetricToGrafana('request', 'all_request_latency', 'total', this.timePassed);
   }
 
   sendMetricsPeriodically(period) {

@@ -3,6 +3,7 @@ const { DB, Role } = require('../database/database.js');
 const { authRouter } = require('./authRouter.js');
 const { StatusCodeError, asyncHandler } = require('../endpointHelper.js');
 const metrics = require('../metrics.js');
+const { start } = require('repl');
 const franchiseRouter = express.Router();
 
 franchiseRouter.endpoints = [
@@ -61,7 +62,16 @@ franchiseRouter.get(
   asyncHandler(async (req, res) => {
     metrics.incrementRequests();
     metrics.incrementGetRequests();
-    res.json(await DB.getFranchises(req.user));
+
+    const startTime = Date.now();
+
+    const franchises = await DB.getFranchises(req.user);
+
+    const elapsedTime = Date.now() - startTime;
+    metrics.incrementRequestProcessingTime(elapsedTime);
+
+    //res.json(await DB.getFranchises(req.user));
+    res.json(franchises);
   })
 );
 
@@ -74,9 +84,15 @@ franchiseRouter.get(
     metrics.incrementGetRequests();
     let result = [];
     const userId = Number(req.params.userId);
+
+    const startTime = Date.now();
+
     if (req.user.id === userId || req.user.isRole(Role.Admin)) {
       result = await DB.getUserFranchises(userId);
     }
+
+    const elapsedTime = Date.now() - startTime;
+    metrics.incrementRequestProcessingTime(elapsedTime);
 
     res.json(result);
   })
@@ -95,7 +111,16 @@ franchiseRouter.post(
 
     const franchise = req.body;
     //console.log(req.body);
-    res.send(await DB.createFranchise(franchise));
+
+    const startTime = Date.now();
+
+    const franchiseCreated = await DB.createFranchise(franchise);
+
+    const elapsedTime = Date.now() - startTime;
+    metrics.incrementRequestProcessingTime(elapsedTime);
+
+    //res.send(await DB.createFranchise(franchise));
+    res.send(franchiseCreated);
   })
 );
 
@@ -110,7 +135,14 @@ franchiseRouter.delete(
     }
 
     const franchiseId = Number(req.params.franchiseId);
+
+    const startTime = Date.now();
+
     await DB.deleteFranchise(franchiseId);
+
+    const elapsedTime = Date.now() - startTime;
+    metrics.incrementRequestProcessingTime(elapsedTime);
+
     res.json({ message: 'franchise deleted' });
   })
 );
@@ -123,12 +155,21 @@ franchiseRouter.post(
     metrics.incrementRequests();
     metrics.incrementPostRequests();
     const franchiseId = Number(req.params.franchiseId);
+
+    const startTime = Date.now();
+
     const franchise = await DB.getFranchise({ id: franchiseId });
     if (!franchise || (!req.user.isRole(Role.Admin) && !franchise.admins.some((admin) => admin.id === req.user.id))) {
       throw new StatusCodeError('unable to create a store', 403);
     }
 
-    res.send(await DB.createStore(franchise.id, req.body));
+    const storeCreated = await DB.createStore(franchise.id, req.body);
+
+    const elapsedTime = Date.now() - startTime;
+    metrics.incrementRequestProcessingTime(elapsedTime);
+
+    //res.send(await DB.createStore(franchise.id, req.body));
+    res.send(storeCreated);
   })
 );
 
@@ -140,6 +181,9 @@ franchiseRouter.delete(
     metrics.incrementRequests();
     metrics.incrementDeleteRequests();
     const franchiseId = Number(req.params.franchiseId);
+
+    const startTime = Date.now();
+
     const franchise = await DB.getFranchise({ id: franchiseId });
     if (!franchise || (!req.user.isRole(Role.Admin) && !franchise.admins.some((admin) => admin.id === req.user.id))) {
       throw new StatusCodeError('unable to delete a store', 403);
@@ -147,6 +191,10 @@ franchiseRouter.delete(
 
     const storeId = Number(req.params.storeId);
     await DB.deleteStore(franchiseId, storeId);
+
+    const elapsedTime = Date.now() - startTime;
+    metrics.incrementRequestProcessingTime(elapsedTime);
+
     res.json({ message: 'store deleted' });
   })
 );

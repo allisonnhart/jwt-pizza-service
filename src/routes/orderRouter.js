@@ -46,7 +46,20 @@ orderRouter.get(
   asyncHandler(async (req, res) => {
     metrics.incrementRequests();
     metrics.incrementGetRequests();
-    res.send(await DB.getMenu());
+
+    const startTime = Date.now();
+
+    try {
+    const menu = await DB.getMenu();
+
+    const elapsedTime = Date.now() - startTime;
+    metrics.incrementRequestProcessingTime(elapsedTime);
+
+    //res.send(await DB.getMenu());
+    res.send(menu);
+    } catch(error) {
+      console.error('get menu error: ', error);
+    }
   })
 );
 
@@ -61,8 +74,14 @@ orderRouter.put(
       throw new StatusCodeError('unable to add menu item', 403);
     }
 
+    const startTime = Date.now();
+
     const addMenuItemReq = req.body;
     await DB.addMenuItem(addMenuItemReq);
+
+    const elapsedTime = Date.now() - startTime;
+    metrics.incrementRequestProcessingTime(elapsedTime);
+
     res.send(await DB.getMenu());
   })
 );
@@ -74,7 +93,20 @@ orderRouter.get(
   asyncHandler(async (req, res) => {
     metrics.incrementRequests();
     metrics.incrementGetRequests();
-    res.json(await DB.getOrders(req.user, req.query.page));
+
+    const startTime = Date.now();
+
+    try {
+    const orders = await DB.getOrders(req.user, req.query.page);
+    
+    const elapsedTime = Date.now() - startTime;
+    metrics.incrementRequestProcessingTime(elapsedTime);
+    //res.json(await DB.getOrders(req.user, req.query.page));
+    res.json(orders);
+
+    } catch(error) {
+      console.error('Get orders error: ', error);
+    }
   })
 );
 
@@ -89,30 +121,47 @@ orderRouter.post(
     const order = await DB.addDinerOrder(req.user, orderReq);
     //start a timer here
     const startTime = Date.now();
-    const r = await fetch(`${config.factory.url}/api/order`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', authorization: `Bearer ${config.factory.apiKey}` },
-      body: JSON.stringify({ diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order }),
-    });
-    const j = await r.json();
+    let r;
+    let j;
+    try {
+      r = await fetch(`${config.factory.url}/api/order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', authorization: `Bearer ${config.factory.apiKey}` },
+        body: JSON.stringify({ diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order }),
+      });
+
+      j = await r.json();
+    } catch(error) {
+      console.log(error);
+    }
+
+    // const j = await r.json();
     const elapsedTime = Date.now() - startTime;
+
+    console.log('elapsed time: ', elapsedTime);
     metrics.incrementRequestProcessingTime(elapsedTime);
+    metrics.incrementPizzaRequestProcessingTime(elapsedTime);
     // console.log('Request processed in ${elapsedTime}ms');
     //stop timer 
     //that's my latency i wanna keep track of
     //send regardless of whether r is ok or not
     if (r.ok) {
-      res.send({ order, jwt: j.jwt, reportUrl: j.reportUrl });
+      console.log('r.ok log');
+      // res.send({ order, jwt: j.jwt, reportUrl: j.reportUrl });
 
       metrics.incrementCreationSuccesses();
       metrics.incrementPizzasSold();
-      const currentRevenue = order.price;
+      const currentRevenue = orderReq.items.reduce((total, item) => total + item.price, 0);
+      // console.log("Order object: ", order);
+      // console.log('order items: ', orderReq.items);
       metrics.currentPizzaRevenue(currentRevenue);
       metrics.incrementTotalRevenue(currentRevenue);
-
+      res.send({ order, jwt: j.jwt, reportUrl: j.reportUrl });
     } else {
-      res.status(500).send({ message: 'Failed to fulfill order at factory', reportUrl: j.reportUrl });
+      console.log('r is not okay log');
       metrics.incrementCreationFailures();
+      res.status(500).send({ message: 'Failed to fulfill order at factory', reportUrl: j.reportUrl });
+      // metrics.incrementCreationFailures();
     }
   })
   //messing w this to add in to determine how many pizzas sold, total rev, creation latency, and if there are any creation failures
@@ -122,3 +171,30 @@ module.exports = orderRouter;
 
 //start timer for when order gets sent off and stop when results come back
 //same kinda thing for request
+
+
+
+
+//data is being sent to grafana and grafana is updating
+//however, after giving me the total revenue and logging the user out,
+  //it gives me a bunch of erors, all saying 'Failed to push metrics data to Grafana'
+
+// is it because my premium trial ended while I was working on this?
+//am not super sure if that's the way to understand things here
+
+//or what i could've possibly screwed up in my metrics and/or router functions 
+
+//also, my cpu isn't updating data to grafana and i do not know why
+  //like i think i changed the return but the logic given to us should still be the same
+//kinda confused because the memory one is working fine in the various places
+//it's being used in metrics.js, so idk why cpu is acting different
+
+
+//there are no pizza creation failures happening in my script right now, is that something
+  //i should try and test or should i just not worry about it
+
+//also I was trying to mess with user authentication failures
+  //and it only sends one bad user
+//i have code in my script to send out an invalid user,
+//but it's not registering that and i wonder why the server isn't picking that up/
+  //how, if it's not picking anything up, it managed to have one invalid user
