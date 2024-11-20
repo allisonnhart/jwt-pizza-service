@@ -218,6 +218,8 @@ class Metrics {
     this.sendMetricToGrafana('pizza_revenue_total', 'total_revenue', 'total', this.totalRevenue);
     this.sendMetricToGrafana('order', 'pizza_creation_latency', 'total', this.pizzaTimePassed);
     this.sendMetricToGrafana('request', 'all_request_latency', 'total', this.timePassed);
+
+    console.log(config);
   }
 
   sendMetricsPeriodically(period) {
