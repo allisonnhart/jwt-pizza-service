@@ -82,12 +82,12 @@ class Metrics {
 
   incrementPostRequests() {
     this.postrequest++;
-    console.log("hit post request function");
+    //console.log("hit post request function");
   }
 
   incrementDeleteRequests() {
     this.deleterequest++;
-    console.log("hit delete request function");
+    //console.log("hit delete request function");
   }
 
   incrementGetRequests() {
@@ -102,7 +102,7 @@ class Metrics {
 
   userIsLoggedIn() {
     this.usersLoggedIn++;
-    //console.log("user is logged in");
+    console.log("user is logged in");
   }
 
   userIsLoggedOut() {
@@ -112,7 +112,7 @@ class Metrics {
 
   incrementSuccessAuth() {
     this.successfulAuthentication++;
-    //console.log("User has been successfully authenticated");
+    console.log("User has been successfully authenticated");
   }
 
   incrementFailureAuth() {
@@ -122,7 +122,7 @@ class Metrics {
 
   incrementPizzasSold() {
     this.pizzasSold++;
-    console.log("more pizzas have been sold");
+    //console.log("more pizzas have been sold");
   }
 
   incrementCreationSuccesses() {
@@ -142,17 +142,17 @@ class Metrics {
 
   incrementTotalRevenue(currRev) {
     this.totalRevenue += currRev;
-    console.log("Added to total revenue. Total revenue is: ", this.totalRevenue);
+    //console.log("Added to total revenue. Total revenue is: ", this.totalRevenue);
   }
 
   incrementRequestProcessingTime(elapsedTime) {
     this.timePassed = elapsedTime;
-    console.log(`Request processing time: ${elapsedTime} ms`);
+    //console.log(`Request processing time: ${elapsedTime} ms`);
   }
 
   incrementPizzaRequestProcessingTime(elapsedTime) {
     this.pizzaTimePassed = elapsedTime;
-    console.log(`Request pizza creation processing time: ${elapsedTime} ms`);
+    //console.log(`Request pizza creation processing time: ${elapsedTime} ms`);
   }
 
   sendMetricToGrafana(metricPrefix, httpMethod, metricName, metricValue) {
@@ -219,7 +219,7 @@ class Metrics {
     this.sendMetricToGrafana('order', 'pizza_creation_latency', 'total', this.pizzaTimePassed);
     this.sendMetricToGrafana('request', 'all_request_latency', 'total', this.timePassed);
 
-    console.log(config);
+    //console.log(config);
   }
 
   sendMetricsPeriodically(period) {
@@ -270,3 +270,45 @@ module.exports = metrics;
     //keep track of the current revenue
 //6. modding order router
     //
+
+
+
+
+
+
+
+
+
+
+    // OK so!
+      // I'm having issues where it's not wanting to push some metrics to
+      // Grafana. I think its an issue with login or with the menu 
+
+      // it let me log in a user when i re-ran my front and back end but
+      // wouldn't give me an error for them when I tried to log in again
+      // I think after logging them out
+
+      // it also doesn't want to login the franchisee that's already supposed
+        // to be there in the system. 
+
+      // it's also reminding me that I did something weird in my tests
+        // where I generated a random name for a store and then 
+        // added an item to the menu (a pepperoni pizza). Now I have
+        // a bunch of random-letter store names and hundreds of specifically
+        // pepperoni pizzas ONLY to order. How would I be able to clear that 
+        // back up/ get it back to normal while still keeping the integrity
+        // of my tests?
+
+      // and i could've sworn I haven't messed around that much with my login
+      // so I have NO idea why it isn't working the way its supposed to
+      // is it like an issue with authentication? or trying to log in the same
+      // user too many times?
+
+
+
+      //also idk if it's because I didn't resolve something when I was following
+      // along with the notification example from class but I will not stop getting
+      // Grafana firing notifications and I don't know how to resolve them.
+      // Is it because it's connected to my jwt pizza stuff, and when stuff fails there
+      // it sends me a warning? because I connected it to one of my graphs
+      // so idk if that's the problem.

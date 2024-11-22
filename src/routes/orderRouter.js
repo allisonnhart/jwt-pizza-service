@@ -55,6 +55,8 @@ orderRouter.get(
     const elapsedTime = Date.now() - startTime;
     metrics.incrementRequestProcessingTime(elapsedTime);
 
+    // console.log(menu);
+
     //res.send(await DB.getMenu());
     res.send(menu);
     } catch(error) {
