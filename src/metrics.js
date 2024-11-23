@@ -169,8 +169,8 @@ class Metrics {
       .then((response) => {
         // console.log('metrics response: ', response.status);
         if (!response.ok) {
-          console.error('Failed to push metrics data to Grafana');
-          console.log(response.status);
+          //console.error('Failed to push metrics data to Grafana');
+          //console.log(response.status);
         }
         else {
           console.log(`Pushed ${metric}`);
