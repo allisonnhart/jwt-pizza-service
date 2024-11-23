@@ -160,7 +160,7 @@ class Metrics {
     const metric = `${metricPrefix},source=${config.metrics.source},method=${httpMethod} ${metricName}=${metricValue}`;
     // console.log('sending metric: ', metric);
     // const metric = `${metricPrefix},source=${config.source},method=${httpMethod} ${metricName}=${metricValue}`;
-    console.log(config.metrics.source);
+    console.log(config.metrics.source);     
     console.log(config.metrics.url);
     console.log(config.metrics.apiKey);
     console.log(config.metrics.userId);
