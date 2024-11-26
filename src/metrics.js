@@ -160,10 +160,10 @@ class Metrics {
     const metric = `${metricPrefix},source=${config.metrics.source},method=${httpMethod} ${metricName}=${metricValue}`;
     // console.log('sending metric: ', metric);
     // const metric = `${metricPrefix},source=${config.source},method=${httpMethod} ${metricName}=${metricValue}`;
-    console.log(config.metrics.source);     
-    console.log(config.metrics.url);
-    console.log(config.metrics.apiKey);
-    console.log(config.metrics.userId);
+    // console.log(config.metrics.source);     
+    // console.log(config.metrics.url);
+    // console.log(config.metrics.apiKey);
+    // console.log(config.metrics.userId);
     fetch(`${config.metrics.url}`, {
       method: 'post',
       body: metric,
@@ -172,12 +172,12 @@ class Metrics {
       .then((response) => {
         // console.log('metrics response: ', response.status);
         if (!response.ok) {
-          //console.error('Failed to push metrics data to Grafana');
+          console.error('Failed to push metrics data to Grafana');
           //console.log(response.status);
         }
-        else {
-          console.log(`Pushed ${metric}`);
-        }
+        // else {
+        //   console.log(`Pushed ${metric}`);
+        // }
       })
       .catch((error) => {
         console.error('Error pushing metrics:', error);

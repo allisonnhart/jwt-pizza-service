@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Check if host is provided as a command line argument
+Check if host is provided as a command line argument
 if [ -z "$1" ]; then
   echo "Usage: $0 <host>"
   echo "Example: $0 https://pizza-service.allisonnhart.com"
@@ -15,7 +15,7 @@ cleanup() {
     exit 0
 }
 
-# Trap SIGINT (Ctrl+C) to execute the cleanup function
+Trap SIGINT (Ctrl+C) to execute the cleanup function
 trap cleanup SIGINT
 
 # Simulate a user requesting the menu every 3 seconds
@@ -23,29 +23,29 @@ while true
 do
   echo "$host"
   curl -s "$host/api/order/menu" > /dev/null;
-  echo "Requesting menu..."
+  #echo "Requesting menu..."
   sleep 3
 done & 
 pid1=$!
 
-# Simulate a user with an invalid email and password every 25 seconds
+Simulate a user with an invalid email and password every 25 seconds
 while true
 do
   curl -s -X PUT "$host/api/auth" -d '{"email":"unknown@jwt.com", "password":"bad"}' -H 'Content-Type: application/json' > /dev/null;
-  echo "Logging in with invalid credentials..."
+  #echo "Logging in with invalid credentials..."
   sleep 2
 done &
 pid2=$!
 
-# Simulate a franchisee logging in every two mintues
+Simulate a franchisee logging in every two mintues
 while true
 do
   response=$(curl -s -X PUT $host/api/auth -d '{"email":"f@jwt.com", "password":"franchisee"}' -H 'Content-Type: application/json');
   token=$(echo $response | grep -oP '"token"\s*:\s*"\K[^"]+')
-  echo "Login franchisee..."
+   #echo "Login franchisee..."
   sleep 110;
   curl -s -X DELETE $host/api/auth -H "Authorization: Bearer $token" > /dev/null;
-  echo "Logging out franchisee..."
+  #echo "Logging out franchisee..."
   sleep 10;
 done &
 pid3=$!

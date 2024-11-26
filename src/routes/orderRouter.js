@@ -117,10 +117,13 @@ orderRouter.post(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
+    console.log("made it to post route for createOrder");
     metrics.incrementRequests();
     metrics.incrementPostRequests();
     const orderReq = req.body;
+    console.log("before adding an order");
     const order = await DB.addDinerOrder(req.user, orderReq);
+    console.log(order);
     //start a timer here
     const startTime = Date.now();
     let r;
