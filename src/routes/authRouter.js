@@ -6,6 +6,7 @@ const { DB, Role } = require('../database/database.js');
 const metrics = require('../metrics.js');
 // const { start } = require('repl');
 const authRouter = express.Router();
+const logger = require('./logger');
 const app = express();
 
 app.use(logger.httpLogger);

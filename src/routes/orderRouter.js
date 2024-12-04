@@ -5,6 +5,7 @@ const { authRouter } = require('./authRouter.js');
 const { asyncHandler, StatusCodeError } = require('../endpointHelper.js');
 const metrics = require('../metrics.js');
 const orderRouter = express.Router();
+const logger = require('./logger');
 const app = express();
 
 app.use(logger.httpLogger);
