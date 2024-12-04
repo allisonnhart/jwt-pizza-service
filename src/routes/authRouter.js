@@ -7,6 +7,8 @@ const metrics = require('../metrics.js');
 // const { start } = require('repl');
 const authRouter = express.Router();
 
+app.use(logger.httpLogger);
+
 authRouter.endpoints = [
   {
     method: 'POST',

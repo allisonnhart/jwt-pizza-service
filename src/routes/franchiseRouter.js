@@ -6,6 +6,8 @@ const metrics = require('../metrics.js');
 // const { start } = require('repl');
 const franchiseRouter = express.Router();
 
+app.use(logger.httpLogger);
+
 franchiseRouter.endpoints = [
   {
     method: 'GET',
