@@ -18,6 +18,7 @@ class Logger {
       return res.send(resBody);
     };
     next();
+    ///////////
   };
 
   log(level, type, logData) {
