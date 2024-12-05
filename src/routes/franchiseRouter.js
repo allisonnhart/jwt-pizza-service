@@ -5,10 +5,10 @@ const { StatusCodeError, asyncHandler } = require('../endpointHelper.js');
 const metrics = require('../metrics.js');
 // const { start } = require('repl');
 const franchiseRouter = express.Router();
-const logger = require('./logger');
-const app = express();
+// const logger = require('./logger');
+// const app = express();
 
-app.use(logger.httpLogger);
+// app.use(logger.httpLogger);
 
 franchiseRouter.endpoints = [
   {

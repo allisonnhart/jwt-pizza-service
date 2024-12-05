@@ -12,6 +12,8 @@ class DB {
   async getMenu() {
     const connection = await this.getConnection();
     try {
+      //pull query outside of statement, put it into a variable
+      //use that variable to send it back into the log and then into the query statement
       const rows = await this.query(connection, `SELECT * FROM menu`);
       return rows;
     } finally {

@@ -6,10 +6,10 @@ const { DB, Role } = require('../database/database.js');
 const metrics = require('../metrics.js');
 // const { start } = require('repl');
 const authRouter = express.Router();
-const logger = require('./logger');
-const app = express();
+// const logger = require('./logger');
+// const app = express();
 
-app.use(logger.httpLogger);
+// app.use(logger.httpLogger);
 
 authRouter.endpoints = [
   {
@@ -75,6 +75,7 @@ authRouter.post(
   asyncHandler(async (req, res) => {
     metrics.incrementRequests();
     metrics.incrementPostRequests();
+    //call logger functions after metrics calls
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
 
