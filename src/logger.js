@@ -1,4 +1,4 @@
-const config = require('./config.json');
+const config = require('./config.js');
 
 class Logger {
   httpLogger = (req, res, next) => {
@@ -46,12 +46,12 @@ class Logger {
 
   sendLogToGrafana(event) {
     const body = JSON.stringify(event);
-    fetch(`${config.url}`, {
+    fetch(`${config.logging.url}`, {
       method: 'post',
       body: body,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${config.userId}:${config.apiKey}`,
+        Authorization: `Bearer ${config.logging.userId}:${config.logging.apiKey}`,
       },
     }).then((res) => {
       if (!res.ok) console.log('Failed to send log to Grafana');
@@ -59,3 +59,38 @@ class Logger {
   }
 }
 module.exports = new Logger();
+
+
+
+
+
+
+// I have to write about 3ish more UNIT TESTS for orderRouter, bc the
+// test things are failing right now because i don't have enough coverage
+
+// it might also be an issue that there isn't any coverage for metrics.js
+// but worry about writing unit tests for order routher first
+
+
+
+
+//for the http requests, it's gonna be similar to the http logger from the 
+    // pre assignment, except you're gonna want to, in the logData section,
+    // get the information that it asks for in the roman numerals part
+    // of the first point of what the deliverable wants
+
+//database request info, you made a note already in database.js, but
+    // it's getting those capitalized statements with the asterisks,
+    // putting them into their own variable, putting that variable 
+    // into the log call, and THEN putting that variable
+    // back into where the line was called before you had to 
+    // change things
+
+// factory service requests similar to the http requests, but for 
+    // factory stuff instead
+
+// unhandled exceptions part is for logging wherever you have like a catch block,
+    // basically wherever you're dealing with an error statement kinda thing
+
+    //sanitizing the log entries happens already from the logger
+        // example code

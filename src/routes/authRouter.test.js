@@ -17,6 +17,14 @@ beforeAll(async () => {
 }, 10000);
 //changing to re run tests
 
+// beforeEach(async () => {
+//   await DB.query('DELETE FROM orders');
+// });
+
+// afterEach(async () => {
+//   await DB.clearOrders();
+// });
+
 test('login', async () => {
   const loginRes = await request(app).put('/api/auth').send(testUser);
   expect(loginRes.status).toBe(200);
@@ -46,6 +54,17 @@ async function createAdminUser() {
   return user;
 }
 
+async function createDinerUser() {
+  let user = { password: 'toomanysecrets', roles: [{ role: Role.Diner}] };
+  user.name = randomName();
+  user.email = user.name + '@diner.com';
+
+  await DB.addUser(user);
+
+  user.password = 'toomanysecrets';
+  return user;
+}
+
 async function createFranchise(adminUser, adminAuthToken) {
 
   const franchise = await request(app).post('/api/franchise').set("Authorization", `Bearer ${adminAuthToken}`).send({ name: adminUser.name, admins: [{email:adminUser.email}]});
@@ -54,21 +73,21 @@ async function createFranchise(adminUser, adminAuthToken) {
 }
 
 
-// test('getting menu', async () => {
+test('getting menu', async () => {
 
-//   const getMenuRes = await request(app).get('/api/order/menu');
-//   expect(getMenuRes.status).toBe(200);
+  const getMenuRes = await request(app).get('/api/order/menu');
+  expect(getMenuRes.status).toBe(200);
 
-//   const menu = await database.DB.getMenu();
-//   let menuLength = menu.length;
-//   expect(menu.length).toBe(menuLength);
+  const menu = await DB.getMenu();
+  let menuLength = menu.length;
+  expect(menu.length).toBe(menuLength);
 
-//   const lastItem = menu[menu.length - 1]; 
-//   expect(lastItem.title).toBe(firstTestPizza.title);
-//   expect(lastItem.image).toBe(firstTestPizza.image);
-//   expect(lastItem.price).toBe(firstTestPizza.price);
+  const lastItem = menu[menu.length - 1]; 
+  expect(lastItem.title).toBe(firstTestPizza.title);
+  expect(lastItem.image).toBe(firstTestPizza.image);
+  expect(lastItem.price).toBe(firstTestPizza.price);
 
-// });
+});
 
 test('adding to menu when admin', async () => {
 
@@ -278,5 +297,40 @@ test('deleting a store', async () => {
 
   const deleteStoreRes = await request(app).delete(`/api/franchise/${franchiseID}/store/${storeID}`).set('Authorization', `Bearer ${adminAuthToken}`);
   expect(deleteStoreRes.status).toBe(200);
+
+});
+
+test('creating an order', async() => {
+
+  const regularDiner = await createDinerUser();
+
+  const loginRes = await request(app).put('/api/auth').send(regularDiner);
+  expect(loginRes.status).toBe(200);
+  const dinerAuthToken = loginRes.body.token;
+
+  const testOrder = { franchiseId: 1, storeId: 1, items: [{ menuId: 1, description: 'Veggie', price: 0.05 }] };
+
+
+  const createMenuRes = await request(app).post('/api/order').set('Authorization', `Bearer ${dinerAuthToken}`).send(testOrder);
+  console.log(createMenuRes.body);
+  expect(createMenuRes.status).toBe(200);
+
+  // const menu = await DB.getMenu();
+  // let menuLength = menu.length;
+  // expect(menu.length).toBe(menuLength);
+
+  // const testOrder = { franchiseId: 1, storeId: 1, items: [{ menuId: 1, description: 'Veggie', price: 0.05 }], id: 1 }
+
+  // const order = await DB.addDinerOrder(regularDiner, testOrder);
+
+  const order = createMenuRes.body.order;
+  // expect(order.id).toBeDefined();
+  expect(order).toBeDefined();
+  expect(order).toHaveProperty('id');
+
+  expect(order.items).toHaveLength(testOrder.items.length);
+  // expect(order.id).toBe(testOrder.id);
+  expect(order.storeId).toBe(testOrder.storeId);
+  expect(order.franchiseId).toBe(testOrder.franchiseId);
 
 });
