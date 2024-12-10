@@ -9,7 +9,13 @@ const logger = require('./logger');
 // app.use(logger.httpLogger);
 
 const app = express();
+
+app.use(logger.factoryLogger);
+
 app.use(logger.httpLogger);
+
+// app.use(logger.factoryLogger);
+
 app.use(express.json());
 app.use(setAuthUser);
 app.use((req, res, next) => {

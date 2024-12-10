@@ -21,6 +21,21 @@ class Logger {
     ///////////
   };
 
+  factoryLogger = (req, res, next) => {
+    let send = res.send;
+    res.send = (resBody) => {
+        const logData = {
+            factoryUrl: config.factory.url,
+            factoryKey: config.factory.apiKey,
+        };
+        const level = this.statusToLogLevel(res.statusCode);
+        this.log(level, 'factory', logData);
+        res.send = send;
+        return res.send(resBody);
+    }
+    next();
+  }
+
   log(level, type, logData) {
     const labels = { component: config.source, level: level, type: type };
     const values = [this.nowString(), this.sanitize(logData)];
@@ -55,11 +70,11 @@ class Logger {
       },
     }).then((res) => {
       if (!res.ok) console.log('Failed to send log to Grafana');
+      //need to print out the actual error
     });
   }
 }
 module.exports = new Logger();
-
 
 
 

@@ -116,6 +116,8 @@ orderRouter.get(
   })
 );
 
+//create a function to log factory requests
+
 // createOrder
 orderRouter.post(
   '/',
